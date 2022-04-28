@@ -1,11 +1,15 @@
+/**
+ * Copyright 2022 Charge Net Stations and Contributors.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
-import * as Infrasructure from '../lib/infrasructure-stack';
+import { OcppServices } from '../lib/ocpp-services'
 
-describe('Infrastructure Tests', () => {
-  const app = new cdk.App();
-  const stack = new Infrasructure.InfrasructureStack(app, 'ocpp-stack');
-  const template = Template.fromStack(stack);
+describe('Ocpp Service Stack Tests', () => {
+    const app = new cdk.App();
+    const stack = new OcppServices(app, 'ocpp-stack');
+    const template = Template.fromStack(stack);
 
     test('Dynamo DB on connection Table', () => {
         template.hasResourceProperties('AWS::DynamoDB::Table', {
@@ -21,21 +25,20 @@ describe('Infrastructure Tests', () => {
 
     test('Dynamo DB Connection Table is destroyed on update and deletion', () => {
         template.hasResource('AWS::DynamoDB::Table', {
-            "UpdateReplacePolicy"  : "Delete",
-            "DeletionPolicy"       : "Delete"
+            "UpdateReplacePolicy": "Delete",
+            "DeletionPolicy": "Delete"
         });
     });
 
     test('connect lambda created and tagged', () => {
         template.hasResourceProperties('AWS::Lambda::Function', {
-            "Handler"       : "app.handler",
-            "Description"   : "connect",
-            "Timeout"       : 5,
-            "MemorySize"    : 256,
+            "Description": "connect",
+            "Timeout": 5,
+            "MemorySize": 256,
             "Environment": {
                 "Variables": {
-                 "TABLE_NAME": "evse-table"
-                 // TOPIC_ARN
+                    "TABLE_NAME": "evse-table"
+                    // TOPIC_ARN
                 }
             },
         });
@@ -57,36 +60,20 @@ describe('Infrastructure Tests', () => {
         template.hasResourceProperties('AWS::SNS::Subscription', {
             "TopicArn": {
                 "Ref": "connectiontopicB7751A6F"
-               },
-               "Protocol": "sqs",
+            },
+            "Protocol": "sqs",
         });
     });
 
     test('disconnect lambda created', () => {
         template.hasResourceProperties('AWS::Lambda::Function', {
-            "Handler"       : "app.handler",
-            "Description"   : "disconnect",
-            "Timeout"       : 5,
-            "MemorySize"    : 256,
+            "Description": "disconnect",
+            "Timeout": 5,
+            "MemorySize": 256,
             "Environment": {
                 "Variables": {
-                 "TABLE_NAME": "evse-table"
-                  // TOPIC_ARN
-                }
-               },
-        });
-    });
-
-    test('default (integration route) lambda created', () => {
-        template.hasResourceProperties('AWS::Lambda::Function', {
-            "Handler"       : "app.handler",
-            "Description"   : "default-handler", // default is a reserved keyword
-            "Timeout"       : 5,
-            "MemorySize"    : 256,
-            "Environment"   : {
-                "Variables": {
-                "TABLE_NAME": "evse-table"
-                // TOPIC_ARN
+                    "TABLE_NAME": "evse-table"
+                    // TOPIC_ARN
                 }
             },
         });
@@ -94,9 +81,9 @@ describe('Infrastructure Tests', () => {
 
     test('API Gateway created', () => {
         template.hasResourceProperties('AWS::ApiGatewayV2::Api', {
-            "Name" : "ocpp-websocket-gateway",
-            "ProtocolType" : "WEBSOCKET",
-            "RouteSelectionExpression" : "$request.body.[2]"
+            "Name": "ocpp-websocket-gateway",
+            "ProtocolType": "WEBSOCKET",
+            "RouteSelectionExpression": "$request.body.[2]"
         });
     });
 });
