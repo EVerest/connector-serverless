@@ -15,7 +15,7 @@ The OCPP Cloud Connector is a cloud based implementation of the Open Charge Poin
 
 ## Run Tests
 
-- git clone https://github.com/ocpp-cloud-connector/connector-serverless
+- git clone git@github.com:ocpp-cloud-connector/connector-serverless.git
 - yarn test connector-serverless/src/functions
 - yarn test connector-serverless/src/infrastructure
 
