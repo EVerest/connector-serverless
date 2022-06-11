@@ -13,13 +13,11 @@
 
 The OCPP Cloud Connector is a cloud based implementation of the Open Charge Point Protocol, the de-facto standard for electric vehicle supply equipment (EVSE). The connector will supply a web socket connection in accordance with the specification and transform OCPP protocol specific messaging into a generic set of messages and events, allowing a developer or company to easily integrate EVSE control into new or existing infrastructure.
 
-## Install
+## Run Tests
 
-_Provide install instructions here or point to an INSTALL.md file_
-
-## Build
-
-_Provide build instructions here or point to an BUILD.md file_
+- git clone https://github.com/ocpp-cloud-connector/connector-serverless
+- yarn test connector-serverless/src/functions
+- yarn test connector-serverless/src/infrastructure
 
 ## Discussion
 
