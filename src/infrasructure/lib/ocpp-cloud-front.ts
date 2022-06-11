@@ -2,7 +2,7 @@
  * Copyright 2022 Charge Net Stations and Contributors.
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Stack, StackProps } from "aws-cdk-lib";
+import { Fn, Stack, StackProps } from "aws-cdk-lib";
 import { OriginRequestPolicy, OriginRequestCookieBehavior, OriginRequestHeaderBehavior, OriginRequestQueryStringBehavior, experimental, Distribution, CachePolicy, LambdaEdgeEventType } from "aws-cdk-lib/aws-cloudfront";
 import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { Runtime, AssetCode } from "aws-cdk-lib/aws-lambda";
@@ -13,19 +13,18 @@ const NODE_RUNTIME_VERSION = Runtime.NODEJS_14_X;
 const HANDLER = "app.handler";
 
 export interface OcppCloudfrontStackProps extends StackProps {
-    endpoint: string;
+    stage: string;
 }
 
 export class OcppCloudfrontStack extends Stack {
   constructor(scope: Construct, id: string, props: OcppCloudfrontStackProps) {
     super(scope, id, props);
-    const websocketEndpoint = props.endpoint;
 
     const ocppOriginRequestPolicy = new OriginRequestPolicy(
       this,
-      "ocppWebSocketPolicy",
+      "ocpp-websocket-policy",
       {
-        originRequestPolicyName: "ocppWebSocketPolicy",
+        originRequestPolicyName: "ocpp-websocket-policy",
         cookieBehavior: OriginRequestCookieBehavior.none(),
         headerBehavior: OriginRequestHeaderBehavior.allowList(
           "Sec-WebSocket-Key",
@@ -51,11 +50,11 @@ export class OcppCloudfrontStack extends Stack {
 
     const ocppCloudFrontDistribution = new Distribution(
       this,
-      "ocppCloudFrontDistribution",
+      "ocpp-cloud-front-distribution",
       {
         defaultBehavior: {
             // dev only
-          origin: new HttpOrigin(websocketEndpoint +'.execute-api.us-west-2.amazonaws.com'),
+          origin: new HttpOrigin(Fn.importValue('websocket-callback-url')),
           cachePolicy: CachePolicy.CACHING_DISABLED,
           originRequestPolicy: ocppOriginRequestPolicy,
           edgeLambdas: [

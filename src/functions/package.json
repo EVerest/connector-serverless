@@ -5,9 +5,13 @@
   "author": "jhuether@chargenetstations.com",
   "license": "APACHE-2.0",
   "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.87.0",
     "@aws-sdk/client-dynamodb": "^3.78.0",
-    "@aws-sdk/client-sns": "^3.79.0",
+    "@aws-sdk/client-sns": "^3.80.0",
+    "@aws-sdk/lib-dynamodb": "^3.80.0",
+    "@aws-sdk/util-dynamodb": "^3.81.0",
     "add": "^2.0.6",
+    "crypto": "^1.0.1",
     "winston": "^3.7.2",
     "yarn": "^1.22.18",
     "yup": "^0.32.11"
@@ -15,7 +19,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest --watch"
+    "test": "jest --watchAll --coverage"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.2",

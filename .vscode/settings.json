@@ -1,0 +1,19 @@
+{
+    "serverlessConsole.services": [
+        {
+            "type": "cloudformation",
+            "title": "OCPP Services",
+            "timeOffsetInMs": 0,
+            "awsProfile": "default",
+            "stacks": [
+                {
+                    "region": "us-west-2",
+                    "stackName": "ocpp-services",
+                    "stage": "dev"
+                }
+            ]
+        }
+    ],
+    "serverlessConsole.autoRefreshInterval": 5000,
+    "serverlessConsole.groupPerRequest": true
+}

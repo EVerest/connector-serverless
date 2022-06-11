@@ -1,0 +1,289 @@
+<!--
+ Copyright 2022 Charge Net Stations and Contributors.
+ SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>WebSocket console</title>
+  <style>
+    textarea {
+      display: block;
+    }
+  </style>
+  <script>
+
+    function log(msg) {
+      document.getElementById('log').appendChild(document.createTextNode(new Date() + '   ' + msg + '\n'));
+    }
+
+    function clearLog() {
+      document.getElementById('log').innerText = "";
+    }
+
+    function status(msg) {
+      log(msg);
+      document.getElementById('status').textContent = msg;
+    }
+  </script>
+  <script>
+    var id = 1;
+    var meter = 100;
+    var socket;
+    var startTransaction = function () {
+      return [
+        2,
+        (id++).toString(),
+        "StartTransaction",
+        {
+          "connectorId": 1,
+          "idTag": document.getElementById('idTag').value,
+          "timestamp": new Date().toISOString(),
+          "meterStart": meter += 1000,
+          "reservationId": null
+        }
+      ]
+    };
+    var heartbeat = function () {
+      return [
+        2,
+        (id++).toString(),
+        "Heartbeat",
+        {}
+      ]
+    };
+    var bootNotification = function () {
+      return [
+        2,
+        (id++).toString(),
+        "BootNotification",
+        {
+          "chargePointVendor": "EV-BOX",
+          "chargePointModel": "Test Model",
+          "firmwareVersion": "1.0"
+        }
+      ]
+    };
+    var remoteStartTransaction = function () {
+      return [
+        3,
+        "idFromRequest",
+        { "status": "Accepted" }
+      ]
+    };
+    var setChargingProfile = function () {
+      return [
+        3,
+        "idFromRequest",
+        { "status": "Accepted" }
+      ]
+    };
+    var meterValues = function () {
+      return [
+        2,
+        (id++).toString(),
+        "MeterValues",
+        {
+          "connectorId": 1,
+          "transactionId": 1,
+          "meterValue": [ {
+            "timestamp": new Date().toISOString(),
+            "sampledValue": [ {
+              "value": (meter += 1000).toString(),
+              "context": null,
+              "format": null,
+              "measurand": null,
+              "phase": null,
+              "location": null,
+              "unit": "Wh"
+            } ]
+          } ]
+        }
+      ]
+    };
+
+    var stopTransaction = function () {
+      return [
+        2,
+        (id++).toString(),
+        "StopTransaction",
+        {
+          "transactionId": 343,
+          "idTag": document.getElementById('idTag').value,
+          "timestamp": new Date().toISOString(),
+          "meterStop": meter += 1000,
+          "reason": null,
+          "transactionData": []
+        }
+      ]
+    };
+
+    var availableStatus = function () {
+      return [ 2, (id++).toString(), "StatusNotification", {
+        "connectorId": 1,
+        "status": "Available",
+        "errorCode": "NoError",
+        "info": null,
+        "timestamp": new Date().toISOString(),
+        "vendorId": null,
+        "vendorErrorCode": null
+      } ]
+    };
+
+    var unavailableStatus = function () {
+      return [ 2, (id++).toString(), "StatusNotification", {
+        "connectorId": 1,
+        "status": "Unavailable",
+        "errorCode": "NoError",
+        "info": null,
+        "timestamp": new Date().toISOString(),
+        "vendorId": null,
+        "vendorErrorCode": null
+      } ]
+    };
+
+    var preparingStatus = function () {
+      return [ 2, (id++).toString(), "StatusNotification", {
+        "connectorId": 1,
+        "status": "Preparing",
+        "errorCode": "NoError",
+        "info": null,
+        "timestamp": new Date().toISOString(),
+        "vendorId": null,
+        "vendorErrorCode": null
+      } ]
+    };
+
+    var chargingStatus = function () {
+      return [ 2, (id++).toString(), "StatusNotification", {
+        "connectorId": 1,
+        "status": "Charging",
+        "errorCode": "NoError",
+        "info": null,
+        "timestamp": new Date().toISOString(),
+        "vendorId": null,
+        "vendorErrorCode": null
+      } ]
+    };
+
+    function connect() {
+      var url = document.getElementById('url').value;
+      var protocol = document.getElementById('protocol').value;
+      if (protocol) {
+        socket = new WebSocket(url, protocol);
+      } else {
+        socket = new WebSocket(url);
+      }
+      status('Connecting to "' + url + '" with protocol "' + protocol + '"...');
+      socket.onopen = function () {
+        status('Connected to "' + socket.url + '".');
+      };
+      socket.onmessage = function (event) {
+        log('RCVD: ' + event.data);
+        // const message = JSON.parse(event.data);
+        // if (message[ 0 ] === 2) {
+        //   var response;
+        //   switch (message[ 2 ]) {
+        //     case 'RemoteStartTransaction':
+        //     case 'RemoteStopTransaction':
+        //     case 'Reset':
+        //     case 'SetChargingProfile':
+        //     case 'ClearChargingProfile':
+        //       response = { status: 'Accepted' };
+        //       break;
+        //     case 'GetConfiguration':
+        //       response = {
+        //         configurationKey: [
+        //           { key: 'configKey', value: 'configValue', readonly: true }
+        //         ]
+        //       };
+        //       break;
+        //   }
+        //   const responseMessage = JSON.stringify([ 3, message[ 1 ], response ]);
+        //   socket.send(responseMessage);
+        //   log('SENT: ' + responseMessage);
+        // }
+      };
+      socket.onclose = function () {
+        status('Disconnected.');
+      };
+    }
+
+    function disconnect() {
+      if (socket) {
+        status('Disconnecting.');
+        socket.close();
+      } else {
+        log('Not connected.');
+      }
+    }
+
+    function send() {
+      if (socket) {
+        socket.send(document.getElementById('text').value);
+        log('SENT: ' + document.getElementById('text').value);
+      } else {
+        log('Not connected.');
+      }
+    }
+
+    function update() {
+      if (socket) {
+        document.getElementById('readyState').textContent = socket.readyState;
+        document.getElementById('bufferedAmount').textContent = socket.bufferedAmount;
+      } else {
+        document.getElementById('readyState').textContent = '-';
+        document.getElementById('bufferedAmount').textContent = '-';
+      }
+    }
+
+    function fillInput(json) {
+      document.getElementById('text').value = JSON.stringify(json, null, 2);
+    }
+
+    setInterval(update, 10);
+  </script>
+</head>
+<body data-gr-c-s-loaded="true">
+<p>Status: <span id="readyState">-</span> <span id="status">Idle</span></p>
+<p>Buffer: <span id="bufferedAmount">-</span> bytes</p>
+<p>
+  <label>WebSocket URL: <input id="url" type="url" size="80"
+                               value="ws://localhost:8080/cat"></label>
+  <label>Protocol: <input id="protocol" type="text" size="10" value="ocpp1.6"></label>
+  <input type="button" value="Connect" onclick="connect()">
+  <input type="button" value="Disconnect" onclick="disconnect()">
+</p>
+<p>
+<p>Request Templates:
+  <input type="button" value="Heartbeat" onclick="fillInput(heartbeat())">
+  <input type="button" value="BootNotification" onclick="fillInput(bootNotification())">
+  <input type="button" value="PreparingStatus" onclick="fillInput(preparingStatus())">
+  <input type="button" value="StartTransaction" onclick="fillInput(startTransaction())">
+  <input type="button" value="MeterValues" onclick="fillInput(meterValues())">
+  <input type="button" value="StopTransaction" onclick="fillInput(stopTransaction())">
+  <input type="button" value="AvailableStatus" onclick="fillInput(availableStatus())">
+  <input type="button" value="UnavailableStatus" onclick="fillInput(unavailableStatus())">
+  <input type="button" value="ChargingStatus" onclick="fillInput(chargingStatus())">
+</p>
+<p>Response Templates:
+  <input type="button" value="RemoteStartTransaction" onclick="fillInput(remoteStartTransaction())">
+  <input type="button" value="SetChargingProfile" onclick="fillInput(setChargingProfile())">
+</p>
+<p>
+  <label>ID Tag: <input id="idTag" type="text" size="20" value="<idTag>"></label>
+</p>
+<p>
+  <label for="text">Message:</label>
+  <textarea id="text" rows="14" cols="80">
+  </textarea>
+  <input type="button" value="Send" onclick="send()">
+</p>
+Log:
+<input type="button" value="Clear Log" onclick="clearLog()">
+<pre id="log">
+</pre>
+</body>
+</html>

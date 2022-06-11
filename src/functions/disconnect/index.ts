@@ -2,22 +2,37 @@
  * Copyright 2022 Charge Net Stations and Contributors.
  * SPDX-License-Identifier: Apache-2.0
  */
-import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { PutItemCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { AmazingLogger as logger } from "../layers/logging/nodejs/logger";
+import {
+  UpdateItemCommand,
+  UpdateItemCommandInput,
+} from "@aws-sdk/client-dynamodb";
+import {
+  ddbClient,
+  getChargeBoxId,
+  WebsocketApiGatewayProxyEventV2,
+} from "../layers/config/nodejs/config";
+import { marshall } from "@aws-sdk/util-dynamodb";
 
-const ddbClient = new DynamoDBClient({ region: process.env.REGION })
+export const handler = async (event: WebsocketApiGatewayProxyEventV2) => {
+  const chargeBoxId = await getChargeBoxId(event);
+  const chargeBoxConnectorId = chargeBoxId + "##0";
 
-export const handler = async (event: APIGatewayProxyEventV2) => {
-  const untypedEvent = event as any;
-  if (untypedEvent.requestContext.connectionId != undefined) {
-    // look up chargeBoxId by connectionId on secondary index
-    // update to disconnected by chargeBoxId
-
-  } else {
-    logger.warn('disconnected without connectionId', { requestContext: untypedEvent.requestContext })
-  }
+  await ddbClient.send(
+    new UpdateItemCommand(getUpdateParams(chargeBoxConnectorId, event))
+  );
 };
 
-
-
+const getUpdateParams = (
+  chargeBoxConnectorId: string,
+  event: WebsocketApiGatewayProxyEventV2
+): UpdateItemCommandInput => {
+  const requestContext = event.requestContext;
+  return {
+    TableName: process.env.TABLE_NAME,
+    Key: { chargeBoxConnectorId: { S: chargeBoxConnectorId } },
+    UpdateExpression: "set requestContext = :w",
+    ExpressionAttributeValues: {
+      ":w": { M: marshall(requestContext) },
+    },
+  };
+};
