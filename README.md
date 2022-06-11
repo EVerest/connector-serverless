@@ -23,8 +23,7 @@ The OCPP Cloud Connector is a cloud based implementation of the Open Charge Poin
 
 You can connect with the community in a variety of ways...
 
-- Slack Channel
-- Something else
+- Slack Channel: lfenergy.slack.com
 
 ## Contributing
 Anyone can contribute to the OCPP Cloud Connector project - learn more at [CONTRIBUTING.md](CONTRIBUTING.md)
