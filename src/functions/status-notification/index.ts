@@ -9,8 +9,8 @@ import {
 
 export const handler = async (event: WebsocketApiGatewayProxyEventV2) => {
   const ocppMessage = getOcppMessage(event);
-  console.log("event: ", event);
-  console.log("ocppMessage: ", ocppMessage);
+  // console.log("event: ", event);
+  // console.log("ocppMessage: ", ocppMessage);
 
   return { statusCode: 200 };
 };

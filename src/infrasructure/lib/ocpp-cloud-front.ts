@@ -3,7 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { Fn, Stack, StackProps } from "aws-cdk-lib";
-import { OriginRequestPolicy, OriginRequestCookieBehavior, OriginRequestHeaderBehavior, OriginRequestQueryStringBehavior, experimental, Distribution, CachePolicy, LambdaEdgeEventType } from "aws-cdk-lib/aws-cloudfront";
+import {
+  OriginRequestPolicy,
+  OriginRequestCookieBehavior,
+  OriginRequestHeaderBehavior,
+  OriginRequestQueryStringBehavior,
+  experimental,
+  Distribution,
+  CachePolicy,
+  LambdaEdgeEventType,
+} from "aws-cdk-lib/aws-cloudfront";
 import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { Runtime, AssetCode } from "aws-cdk-lib/aws-lambda";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
@@ -13,7 +22,7 @@ const NODE_RUNTIME_VERSION = Runtime.NODEJS_14_X;
 const HANDLER = "app.handler";
 
 export interface OcppCloudfrontStackProps extends StackProps {
-    stage: string;
+  stage: string;
 }
 
 export class OcppCloudfrontStack extends Stack {
@@ -44,7 +53,7 @@ export class OcppCloudfrontStack extends Stack {
         handler: HANDLER,
         code: new AssetCode("../functions/path-to-query-param"),
         stackId: "path-to-query-param-edge-lambda-stack-us-east-1",
-        logRetention: RetentionDays.ONE_DAY,
+        logRetention: RetentionDays.ONE_DAY
       }
     );
 
@@ -53,8 +62,9 @@ export class OcppCloudfrontStack extends Stack {
       "ocpp-cloud-front-distribution",
       {
         defaultBehavior: {
-            // dev only
-          origin: new HttpOrigin(Fn.importValue('websocket-callback-url')),
+          origin: new HttpOrigin(
+            Fn.select(2, Fn.split("/", Fn.importValue("websocket-callback-url")))
+          ),
           cachePolicy: CachePolicy.CACHING_DISABLED,
           originRequestPolicy: ocppOriginRequestPolicy,
           edgeLambdas: [

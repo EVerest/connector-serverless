@@ -1,7 +1,6 @@
-exports.handler = async event => {
+exports.handler = async (event) => {
   let response = event.Records[0].cf.request;
-  // /dev/chargeBoxId
-  const chargeBoxId = response.uri.substring(response.uri.lastIndexOf('/') + 1);
-  response.querystring = 'chargeBoxId=' + chargeBoxId;
+  response.querystring = "chargeBoxId=" + response.uri.replace("/", "");
+  response.uri = "/dev";
   return response;
 };

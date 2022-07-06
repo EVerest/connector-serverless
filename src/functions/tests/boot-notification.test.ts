@@ -33,7 +33,7 @@ jest.mock("@aws-sdk/client-dynamodb", () => {
     }),
   };
 });
-//
+
 jest.mock("@aws-sdk/client-apigatewaymanagementapi", () => {
   return {
     ApiGatewayManagementApiClient: jest.fn().mockImplementation(() => {

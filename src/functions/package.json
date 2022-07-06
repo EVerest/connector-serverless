@@ -19,7 +19,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest --watchAll --coverage"
+    "test": "jest --watchAll"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.2",

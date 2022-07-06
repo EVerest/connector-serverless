@@ -2,8 +2,13 @@
  * Copyright 2022 Charge Net Stations and Contributors.
  * SPDX-License-Identifier: Apache-2.0
  */
-import { Duration, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
-import { CfnOutput } from "aws-cdk-lib";
+import {
+  Duration,
+  RemovalPolicy,
+  Stack,
+  StackProps,
+  CfnOutput,
+} from "aws-cdk-lib";
 import {
   AttributeType,
   BillingMode,
@@ -222,10 +227,9 @@ export class OcppServices extends Stack {
     buildOcppService("start-transaction", "StartTransaction");
     buildOcppService("boot-notification", "BootNotification");
 
-    new CfnOutput(this, 'websocket-callback-url', {
+    new CfnOutput(this, "websocket-callback-url", {
       value: wsStage.callbackUrl,
-      exportName: 'websocket-callback-url'
+      exportName: "websocket-callback-url",
     });
-
   }
 }

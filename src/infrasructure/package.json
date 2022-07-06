@@ -2,12 +2,12 @@
   "name": "infrasructure",
   "version": "0.1.0",
   "bin": {
-    "infrasructure": "bin/infrasructure.js"
+    "infrasructure": "bin/infrasructure.ts"
   },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest --watchAll --coverage",
+    "test": "jest --watchAll",
     "cdk": "cdk"
   },
   "devDependencies": {
