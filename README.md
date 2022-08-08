@@ -9,18 +9,31 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/CII ID/badge)](https://bestpractices.coreinfrastructure.org/projects/CII ID)
 ```
 
-# OCPP Cloud Connector
+# OCPP Serverless Cloud Connector
 
 The OCPP Cloud Connector is a cloud based implementation of the Open Charge Point Protocol, the de-facto standard for electric vehicle supply equipment (EVSE). The connector will supply a web socket connection in accordance with the specification and transform OCPP protocol specific messaging into a generic set of messages and events, allowing a developer or company to easily integrate EVSE control into new or existing infrastructure.
 
-## Install
+## Run Tests
 
-_Provide install instructions here or point to an INSTALL.md file_
+The project is split into two section, infrustructure and functions.  Infrustructure is the AWS CDK constructs and infrustructure as code.  Functions are the functions that make up the individual services that are invoked when a specific OCPP event is consumed.  Both infrustructure and functions have unit tests.  
 
-## Build
+### Infrustrucure Tests
 
-_Provide build instructions here or point to an BUILD.md file_
+../src/infrustructure 
+$yarn run test
 
+This command runs jest test with the --watchAll flag
+
+### Function Tests
+
+../src/functions
+$ yar run test
+
+This command runs jest test with the --watchAll flag
+
+## Deploy and Run
+
+In order to deploy and run, you must first have an AWS account with admin privelidges.  
 ## Discussion
 
 You can connect with the community in a variety of ways...
